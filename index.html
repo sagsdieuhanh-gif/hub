@@ -49,6 +49,7 @@ main{padding-top:25px;padding-bottom:70px}
 .tileupper{display:flex;gap:18px;align-items:center;min-width:0}
 .identity{width:116px;height:114px;flex:0 0 116px;position:relative;background:var(--plate);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 17%,white);border-radius:21px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden;padding:9px 6px}
 .identity .brandimg{width:77px;height:76px;object-fit:contain}
+.identity .smallbrand{position:absolute;top:6px;right:6px;width:25px;height:25px;object-fit:contain;background:#fff;border-radius:7px;padding:2px;box-shadow:0 1px 4px #0b3d5c20}
 .identity .bigmark{text-align:center;max-width:105px;line-height:1.04;font-size:27px;font-weight:950;letter-spacing:-.055em;overflow-wrap:anywhere}
 .identity .bigmark.long{font-size:19px;letter-spacing:-.045em}
 .identity .bigmark.vietjet{font-style:italic;font-size:25px;letter-spacing:-.075em}
@@ -117,17 +118,22 @@ function createTile(item){
  var a=el("a","tilelink");a.href=item.url;a.target="_blank";a.rel="noopener noreferrer";a.setAttribute("aria-label","Mở "+item.name+": "+item.purpose+" trong tab mới");
  var upper=el("div","tileupper"),imageBox=el("div","identity");
  // Always show a large service identity; a tiny external favicon must never replace the recognizable label.
- if(item.group==="sags"||item.id==="email"||item.id==="eoffice"){
-  var logo=document.createElement("img");logo.className="brandimg";logo.src="assets/logo-sags.png";logo.loading="lazy";logo.alt="";
-  logo.onerror=function(){logo.remove();imageBox.insertBefore(el("span","bigmark","SAGS"),imageBox.firstChild);};
-  imageBox.appendChild(logo);
+ var sagsApp=item.group==="sags"||item.id==="email"||item.id==="eoffice";
+ if(sagsApp){
+  // Most SAGS apps share one corporate logo: make their individual app codes prominent.
+  var appMark=el("span","bigmark",item.tag);
+  if(item.tag.length>5)appMark.classList.add("long");
+  imageBox.appendChild(appMark);
+  var sagsLogo=document.createElement("img");sagsLogo.className="smallbrand";
+  sagsLogo.src="assets/logo-sags.png";sagsLogo.loading="lazy";sagsLogo.alt="";
+  sagsLogo.onerror=function(){sagsLogo.remove();};imageBox.appendChild(sagsLogo);
  }else{
   var mark=el("span","bigmark",item.mark||item.tag);
   if((item.mark||"").length>8)mark.classList.add("long");
   if(item.id==="vietjet"||item.id==="sunlogin"||item.id==="sunview"||item.id==="scoot"||item.id==="jinair"||item.id==="fr24"||item.id==="chatgpt"||item.id==="camera")mark.classList.add(item.id==="sunview"||item.id==="sunlogin"?"sun":item.id);
   imageBox.appendChild(mark);
  }
- imageBox.appendChild(el("span","iconlabel",item.tag));
+ imageBox.appendChild(el("span","iconlabel",sagsApp?"SAGS CXR":item.tag));
  var copy=el("div","tiletext");copy.appendChild(el("span","eyebrow",item.detail));copy.appendChild(el("h3","",item.name));copy.appendChild(el("p","purpose",item.purpose));
  upper.appendChild(imageBox);upper.appendChild(copy);a.appendChild(upper);
  var meta=el("div","tilemeta");meta.appendChild(el("span","domain",new URL(item.url).host));meta.appendChild(el("span","open","MỞ TRANG ↗"));a.appendChild(meta);
